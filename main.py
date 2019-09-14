@@ -41,7 +41,7 @@ def send_alert():
     # send the alert
     print('sending alert')
     print(requests.get(str(os.environ.get('ALERT_URL', None)),
-                       {'value1': time_opened.format('HH:mm:ss A')}))
+                       {'value1': time_opened.format('h:mm:ss A')}))
 
     # schedule another timer
     start_alert_timer(current_timer_length * 2)
