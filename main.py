@@ -2,13 +2,14 @@ import os
 import threading
 from time import localtime, strftime
 
+import pendulum as pendulum
 import requests
 from flask import Flask, request, make_response
 
 app = Flask(__name__)
 alert_timer = None
 time_opened = None
-starting_timer_length = int(os.environ.get('TIMER', 10 * 60))
+starting_timer_length = int(os.environ.get('TIMER', 600))
 current_timer_length = None
 
 
@@ -40,7 +41,7 @@ def send_alert():
     # send the alert
     print('sending alert')
     print(requests.get(str(os.environ.get('ALERT_URL', None)),
-                       {'value1': strftime("%I:%M %p", time_opened)}))
+                       {'value1': time_opened.format('HH:mm:ss A')}))
 
     # schedule another timer
     start_alert_timer(current_timer_length * 2)
@@ -49,7 +50,7 @@ def send_alert():
 
 
 def auth(auth):
-    return auth == str(os.environ.get('TOKEN', 'token'))
+    return auth == str(os.environ.get('TOKEN'))
 
 
 @app.route('/garage-opened', methods=['POST'])
@@ -60,7 +61,7 @@ def garage_opened():
     if not auth(request.json['auth']):
         return '', 401
 
-    time_opened = localtime()
+    time_opened = pendulum.now('America/Chicago')
     start_alert_timer(starting_timer_length)
     print('garage door opened, alert timer scheduled')
     return 'alert timer scheduled'
@@ -77,5 +78,4 @@ def garage_closed():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
