@@ -82,7 +82,7 @@ def garage_closed():
 
 
 @app.route('/', methods=['POST'])
-def garage_closed():
+def dummy():
     global token
     global alert_url
     global starting_timer_length
