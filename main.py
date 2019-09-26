@@ -1,10 +1,11 @@
+import logging
 import multiprocessing
 import os
 import threading
 
 import pendulum as pendulum
 import requests
-from flask import Flask, request, make_response, logging
+from flask import Flask, request, make_response
 
 print('number of cpus ' + str(multiprocessing.cpu_count()))
 app = Flask(__name__)
