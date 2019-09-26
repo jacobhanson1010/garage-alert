@@ -4,7 +4,7 @@ import threading
 
 import pendulum as pendulum
 import requests
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, logging
 
 print('number of cpus ' + str(multiprocessing.cpu_count()))
 app = Flask(__name__)
@@ -27,7 +27,7 @@ def start_alert_timer(timer_length):
 
     alert_timer = threading.Timer(timer_length, send_alert)
     alert_timer.start()
-    print('alert_timer scheduled for ' + str(current_timer_length) + ' from now')
+    app.logger.info('alert_timer scheduled for ' + str(current_timer_length) + ' from now')
 
 
 def cancel_alert_timer():
@@ -42,8 +42,8 @@ def send_alert():
     global current_timer_length
 
     # send the alert
-    print('sending alert')
-    print(requests.get(alert_url,
+    app.logger.info('sending alert')
+    app.logger.info(requests.get(alert_url,
                        {'value1': time_opened.format('h:mm:ss A')}))
 
     # schedule another timer
@@ -67,7 +67,7 @@ def garage_opened():
 
     time_opened = pendulum.now('America/Chicago')
     start_alert_timer(starting_timer_length)
-    print('garage door opened, alert timer scheduled')
+    app.logger.info('garage door opened, alert timer scheduled')
     return 'alert timer scheduled'
 
 
@@ -77,7 +77,7 @@ def garage_closed():
         return '', 401
 
     cancel_alert_timer()
-    print('garage door closed, alert timer cancelled')
+    app.logger.info('garage door closed, alert timer cancelled')
     return 'alert timer cancelled'
 
 
@@ -86,11 +86,16 @@ def dummy():
     global token
     global alert_url
     global starting_timer_length
-    print('token ' + token)
-    print('alert_url ' + alert_url)
-    print('starting_timer_length ' + str(starting_timer_length))
+    app.logger.info('token ' + token)
+    app.logger.info('alert_url ' + alert_url)
+    app.logger.info('starting_timer_length ' + str(starting_timer_length))
     return 'hello world'
 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+if __name__ != '__main__':
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
