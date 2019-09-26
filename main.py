@@ -1,11 +1,12 @@
+import multiprocessing
 import os
 import threading
-from time import localtime, strftime
 
 import pendulum as pendulum
 import requests
 from flask import Flask, request, make_response
 
+print('number of cpus ' + str(multiprocessing.cpu_count()))
 app = Flask(__name__)
 alert_timer = None
 time_opened = None
