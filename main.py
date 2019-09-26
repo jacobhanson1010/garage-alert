@@ -88,7 +88,7 @@ def dummy():
     global starting_timer_length
     print('token ' + token)
     print('alert_url ' + alert_url)
-    print('starting_timer_length ' + starting_timer_length)
+    print('starting_timer_length ' + str(starting_timer_length))
     return 'hello world'
 
 
