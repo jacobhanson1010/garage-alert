@@ -11,6 +11,8 @@ app = Flask(__name__)
 alert_timer = None
 time_opened = None
 starting_timer_length = int(os.environ.get('TIMER', 600))
+token = str(os.environ.get('TOKEN', None))
+alert_url = str(os.environ.get('ALERT_URL', None))
 current_timer_length = None
 
 
@@ -41,7 +43,7 @@ def send_alert():
 
     # send the alert
     print('sending alert')
-    print(requests.get(str(os.environ.get('ALERT_URL', None)),
+    print(requests.get(alert_url,
                        {'value1': time_opened.format('h:mm:ss A')}))
 
     # schedule another timer
@@ -50,8 +52,9 @@ def send_alert():
     return
 
 
-def auth(auth):
-    return auth == str(os.environ.get('TOKEN'))
+def auth(tok):
+    global token
+    return tok == token
 
 
 @app.route('/garage-opened', methods=['POST'])
@@ -80,8 +83,13 @@ def garage_closed():
 
 @app.route('/', methods=['POST'])
 def garage_closed():
-    if not auth(request.json['auth']):
-        return 'hello world'
+    global token
+    global alert_url
+    global starting_timer_length
+    print('token ' + token)
+    print('alert_url ' + alert_url)
+    print('starting_timer_length ' + starting_timer_length)
+    return 'hello world'
 
 
 if __name__ == '__main__':
